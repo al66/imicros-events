@@ -1,0 +1,1 @@
+process.env.KAFKA_BROKER = "kafka:9092";

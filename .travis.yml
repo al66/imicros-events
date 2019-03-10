@@ -1,0 +1,37 @@
+language: node_js
+
+services:
+- docker
+
+addons:
+  hosts:
+    - zookeeper
+    - kafka
+    
+node_js:
+  - stable
+
+before_install:
+#- docker pull spotify/kafka 
+#- docker run -d -p 2181:2181 -p 9092:9092 --env ADVERTISED_HOST=127.0.0.1 --env ADVERTISED_PORT=9092 spotify/kafka
+- docker pull zookeeper
+- docker run -d --name zookeeper -p 2181:2181 zookeeper
+- docker pull wurstmeister/kafka
+- docker run -d --name kafka --link zookeeper:zookeeper -e KAFKA_ADVERTISED_HOST_NAME=kafka  -e KAFKA_ADVERTISED_PORT=9092 -e KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181  -e KAFKA_AUTO_CREATE_TOPICS_ENABLE=true -e KAFKA_CREATE_TOPICS='events' -v /var/run/docker.sock:/var/run/docker.sock -p 9092:9092 wurstmeister/kafka
+
+install:
+  - npm install
+
+script:
+  - npm run test
+  
+# Send coverage data to Coveralls
+after_script:
+  - cat coverage/lcov.info | node_modules/coveralls/bin/coveralls.js  
+
+notifications:
+  email:
+    recipients:
+      - andreas.leinen@imicros.de
+    on_success: never # default: change
+    on_failure: always # default: always
