@@ -40,7 +40,7 @@ describe("Test publisher service", () => {
                 event: "test.emit",
                 payload: { msg: "say hello to the world" }
             };
-            return broker.call("flow.publisher.emit", params, opts).then(res => {
+            return broker.call("events.publisher.emit", params, opts).then(res => {
                 expect(res.topic).toBeDefined();
                 expect(res.event).toEqual(params.event);
             });

@@ -5,7 +5,7 @@
 
 module.exports = {
     // Static [kafka]
-    Publisher: require("./lib/flow.publisher"),
-    Subscriber: require("./lib/flow.subscriber"),
-    Middleware: require("./lib/flow.middleware")
+    Publisher: require("./lib/events.publisher"),
+    Subscriber: require("./lib/events.subscriber"),
+    Middleware: require("./lib/events.middleware")
 };
