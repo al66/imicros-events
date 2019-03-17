@@ -28,9 +28,6 @@ describe("Test subscriber service", () => {
             logLevel: "info" //"debug"
         });
         handlerService = broker.createService(handler);
-        subscriberService = broker.createService(Subscriber, Object.assign({ 
-            settings: { brokers: [kafka], groupId: "Test", fromBeginning: false, handler: "handler.eachEvent" } 
-        }));
         publisherService = broker.createService(Publisher, Object.assign({ settings: { brokers: [kafka] } }));
         opts = { meta: { user: { id: `1-${timestamp}` , email: `1-${timestamp}@host.com` }, groupId: `g-${timestamp}`, access: [`g-${timestamp}`] } };
         return broker.start();
@@ -38,16 +35,42 @@ describe("Test subscriber service", () => {
 
     afterAll(async () => {
     });
-    
-    describe("Test create service", () => {
+
+    describe("Test create publisher service", () => {
 
         it("it should be created", () => {
             expect(handlerService).toBeDefined();
-            expect(subscriberService).toBeDefined();
             expect(publisherService).toBeDefined();
         });
     });
+    
+    describe("Test emit event ", () => {
 
+        it("it should emit event", async () => {
+            let params = {
+                event: "test.emit",
+                payload: { msg: "say hello to the world" }
+            };
+            let res = await broker.call("events.publisher.emit", params, opts);
+            expect(res.topic).toBeDefined();
+            expect(res.event).toEqual(params.event);
+        });
+        
+    });
+
+    describe("Test create subscriber service", () => {
+
+        it("it should be created", async () => {
+            await broker.stop();
+            subscriberService = await broker.createService(Subscriber, Object.assign({ 
+                settings: { brokers: [kafka], groupId: "Test", fromBeginning: false, handler: "handler.eachEvent" } 
+            }));
+            await broker.start();
+            expect(subscriberService).toBeDefined();
+        });
+    });
+
+    
     describe("Test consume & call action", () => {
         let params = {
             event: "test.emit",
@@ -65,14 +88,6 @@ describe("Test subscriber service", () => {
         it("should stop the broker", async () => {
             expect.assertions(1);
             await broker.stop();
-            // wait some time for consuming
-            /*
-            await new Promise((resolve) => {
-                setTimeout(() => {
-                    resolve();
-                }, 100);
-            });
-            */
             expect(broker).toBeDefined();
         });
     });
