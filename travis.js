@@ -1,1 +1,1 @@
-process.env.KAFKA_BROKER = "kafka:9092";
+process.env.KAFKA_BROKER = "kafka1:9092";
