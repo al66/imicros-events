@@ -15,7 +15,7 @@ const Handler = {
                 await calls.push(result);
                 return result;
             }
-        }
+        }   
     }
 };
 
@@ -36,10 +36,10 @@ let count = 0;
 let emit = async () => {
     let opts = { meta: { user: { id: `1-${timestamp}` , email: `1-${timestamp}@host.com` }, groupId: `g-${timestamp}`, access: [`g-${timestamp}`] } };
     let params;
-    for (let i = 0; i<n; i++) {
+    for (let i = 1; i<=n; i++) {
         params = {
             event: "user.created",
-            payload: { msg: "Number" + i }
+            payload: { msg: "Number" + i, offset: i }
         };
         await broker.call("events.publisher.emit", params, opts);
         count++;
@@ -61,31 +61,39 @@ let run = async () => {
         ts = Date.now();
         await emit();
         te = Date.now();
+        let offset = calls.length;
         console.log({
             "emit completed": {
                 "events emitted": count,
-                "handler calls": calls.length,
+                "handler calls": offset,
+                "handler offset": calls[offset-1] ? calls[offset-1].params.offset : "undefined",
                 "time (ms)": te-ts
             }
         });
         await new Promise((resolve) => {
             let running = true;
-            setTimeout(() => {
+            let timeout = setTimeout(() => {
                 running = false;
+                console.log("timeout");
                 resolve();
-            }, 10000);
+            }, 50000);
             let loop = () => {
                 if (!running) return;
-                if (calls.length >= count) return resolve();
+                if (calls.length >= count) {
+                    clearTimeout(timeout);
+                    return resolve();
+                }
                 setImmediate(loop); 
             };
             loop();                
         });
         tf = Date.now();
+        offset = calls.length;
         console.log({
             "handler completed": {
                 "events emitted": count,
-                "handler calls": calls.length,
+                "handler calls": offset,
+                "handler offset": calls[offset-1] ? calls[offset-1].params.offset : "undefined",
                 "time (ms)": tf-ts
             }
         });
