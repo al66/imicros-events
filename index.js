@@ -7,5 +7,6 @@ module.exports = {
     // Static [kafka]
     Publisher: require("./lib/events.publisher"),
     Subscriber: require("./lib/events.subscriber"),
-    Middleware: require("./lib/events.middleware")
+    Middleware: require("./lib/events.middleware"),
+    Admin: require("./lib/events.admin")
 };

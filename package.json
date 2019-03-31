@@ -7,7 +7,9 @@
   "main": "index.js",
   "scripts": {
     "test": "jest --coverage --no-cache --config=travis.js",
-    "test-local": "jest --coverage --no-cache --config=local.js"
+    "test-local": "jest --coverage --no-cache --config=local.js",
+    "test-admin": "jest test/events.admin.js --no-cache --config=local.js",
+    "test-sub": "jest test/events.subscriber.spec.js --no-cache --config=local.js"
   },
   "jest": {
     "collectCoverageFrom": [

@@ -1,31 +1,47 @@
 "use strict";
 const { ServiceBroker } = require("moleculer");
 const { Publisher } = require("../index");
+const { Admin } = require("../index");
 
 const timestamp = Date.now();
 const kafka = process.env.KAFKA_BROKER || "localhost:9092";
+const topic = `test-topic-${timestamp}`;
 
 describe("Test publisher service", () => {
 
-    let broker, service, opts;
+    let broker, service, admin, opts;
     beforeAll(() => {
-        broker = new ServiceBroker({
-            logger: console,
-            logLevel: "info" //"debug"
-        });
-        service = broker.createService(Publisher, Object.assign({ settings: { brokers: [kafka] } }));
-        return broker.start();
     });
     
     afterAll(async () => {
-        await broker.stop();
     });
     
     describe("Test create service", () => {
 
-        it("it should be created", () => {
+        it("it should be created", async () => {
+            broker = new ServiceBroker({
+                logger: console,
+                logLevel: "info" //"debug"
+            });
+            service = await broker.createService(Publisher, Object.assign({ settings: { brokers: [kafka], topic: topic } }));
+            admin = await broker.createService(Admin, Object.assign({ settings: { brokers: [kafka] } }));
+            await broker.start();
             expect(service).toBeDefined();
+            expect(admin).toBeDefined();
         });
+
+        it("it should create topic event", () => {
+            opts = { };
+            let params = {
+                topics: [ { topic: topic } ],
+                waitForLeaders: true,
+                timeout: 1000
+            };
+            return broker.call("events.admin.createTopics", params, opts).then(res => {
+                expect(res.topics).toBeDefined();
+            });
+        });
+        
     });
 
     describe("Test emit event ", () => {
@@ -48,4 +64,12 @@ describe("Test publisher service", () => {
         
     });
 
+    describe("Test stop broker", () => {
+        it("should stop the broker", async () => {
+            expect.assertions(1);
+            await broker.stop();
+            expect(broker).toBeDefined();
+        });
+    });
+    
 });

@@ -2,9 +2,13 @@
 const { ServiceBroker } = require("moleculer");
 const { Subscriber } = require("../index");
 const { Publisher } = require("../index");
+const { Admin } = require("../index");
 
 const timestamp = Date.now();
 const kafka = process.env.KAFKA_BROKER || "localhost:9092";
+//const topic = `test-topic-${timestamp}`;
+const topic = "events";
+const groupId = `consumer-${timestamp}`;
 
 const handler = {
     name: "handler",
@@ -21,27 +25,50 @@ const handler = {
 
 describe("Test subscriber service", () => {
 
-    let broker, publisherService, subscriberService, handlerService, opts;
+    let broker, adminService, publisherService, subscriberService, handlerService, opts;
     beforeAll(() => {
         broker  = new ServiceBroker({
             logger: console,
             logLevel: "info" //"debug"
         });
-        handlerService = broker.createService(handler);
-        publisherService = broker.createService(Publisher, Object.assign({ settings: { brokers: [kafka] } }));
         opts = { meta: { user: { id: `1-${timestamp}` , email: `1-${timestamp}@host.com` }, groupId: `g-${timestamp}`, access: [`g-${timestamp}`] } };
-        return broker.start();
     });
 
     afterAll(async () => {
     });
 
-    describe("Test create publisher service", () => {
+    describe("Test create publisher service and topic", () => {
 
-        it("it should be created", () => {
+        it("it should create services", async () => {
+            handlerService = await broker.createService(handler);
+            adminService = await broker.createService(Admin, Object.assign({ settings: { brokers: [kafka] } }));
+            publisherService = await broker.createService(Publisher, Object.assign({ settings: { brokers: [kafka], topic: topic } }));
+            subscriberService = await broker.createService(Subscriber, Object.assign({ 
+                settings: { brokers: [kafka], topic: topic, groupId: groupId, fromBeginning: false, handler: "handler.eachEvent" } 
+            }));
+            await broker.start();
             expect(handlerService).toBeDefined();
+            expect(adminService).toBeDefined();
             expect(publisherService).toBeDefined();
+            expect(subscriberService).toBeDefined();
         });
+        
+        it("it should create topic " + `test-topic-${timestamp}`, async () => {
+            opts = { };
+            let params = {
+                topics: [ { 
+                    topic: `test-topic-${timestamp}`,
+                    numPartitions: 1,
+                    replicationFactor: 1
+                } ],
+                waitForLeaders: true,
+                timeout: 1000
+            };
+            let res = await broker.call("events.admin.createTopics", params, opts);
+            expect(res.topics).toBeDefined();  
+            expect(res.topics).toEqual(expect.objectContaining(params.topics));
+        });        
+        
     });
     
     describe("Test emit event ", () => {
@@ -58,19 +85,6 @@ describe("Test subscriber service", () => {
         
     });
 
-    describe("Test create subscriber service", () => {
-
-        it("it should be created", async () => {
-            await broker.stop();
-            subscriberService = await broker.createService(Subscriber, Object.assign({ 
-                settings: { brokers: [kafka], groupId: "Test", fromBeginning: false, handler: "handler.eachEvent" } 
-            }));
-            await broker.start();
-            expect(subscriberService).toBeDefined();
-        });
-    });
-
-    
     describe("Test consume & call action", () => {
         let params = {
             event: "test.emit",
