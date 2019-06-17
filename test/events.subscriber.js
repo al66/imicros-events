@@ -14,6 +14,13 @@ const handler = {
     name: "handler",
     actions: {
         eachEvent: {
+            params: {
+                event: { type: "string" },
+                payload: { type: "any" },
+                version: { type: "string" },
+                uid: { type: "string" },
+                timestamp: { type: "number" }
+            },
             handler(ctx) {
                 let result = { service: this.name, meta: ctx.meta, params: ctx.params };
                 this.logger.info(this.name + " called", result);
@@ -31,6 +38,9 @@ describe("Test subscriber service", () => {
             logger: console,
             logLevel: "info" //"debug"
         });
+    });
+
+    beforeEach(() => {
         opts = { meta: { user: { id: `1-${timestamp}` , email: `1-${timestamp}@host.com` }, groupId: `g-${timestamp}`, access: [`g-${timestamp}`] } };
     });
 

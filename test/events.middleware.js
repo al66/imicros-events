@@ -26,7 +26,7 @@ describe("Test publisher service", () => {
     beforeAll(() => {
         broker = new ServiceBroker({
             logger: console,
-            logLevel: "debug", //"debug"
+            logLevel: "info", //"debug"
             middlewares: [Middleware],
             imicros: {
                 options: {
