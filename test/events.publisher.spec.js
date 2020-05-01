@@ -59,6 +59,28 @@ describe("Test publisher service", () => {
             return broker.call("events.publisher.emit", params, opts).then(res => {
                 expect(res.topic).toBeDefined();
                 expect(res.event).toEqual(params.event);
+                expect(res.version).toEqual("1");
+            });
+        });
+        
+    });
+
+    describe("Cleanup ", () => {
+
+        beforeEach(() => {
+            opts = { meta: { user: { id: `1-${timestamp}` , email: `1-${timestamp}@host.com` }, groupId: `g-${timestamp}` } };
+        });
+
+        it("it should delete topic", () => {
+            opts = { };
+            let params = {
+                topics: [ topic ],
+                timeout: 1000
+            };
+            return broker.call("events.admin.deleteTopics", params, opts).then(res => {
+                console.log(res);
+                expect(res.topics).toBeDefined();
+                expect(res.topics).toEqual(expect.objectContaining(params.topics));
             });
         });
         

@@ -107,7 +107,28 @@ describe("Test subscriber service", () => {
             expect(res.event).toEqual(params.event);
         });
     });
-    
+
+    describe("Cleanup ", () => {
+
+        beforeEach(() => {
+            opts = { meta: { user: { id: `1-${timestamp}` , email: `1-${timestamp}@host.com` }, groupId: `g-${timestamp}` } };
+        });
+
+        it("it should delete topic", () => {
+            opts = { };
+            let params = {
+                topics: [ `test-topic-${timestamp}` ],
+                timeout: 1000
+            };
+            return broker.call("events.admin.deleteTopics", params, opts).then(res => {
+                console.log(res);
+                expect(res.topics).toBeDefined();
+                expect(res.topics).toEqual(expect.objectContaining(params.topics));
+            });
+        });
+        
+    });
+
     describe("Test stop broker", () => {
         it("should stop the broker", async () => {
             expect.assertions(1);

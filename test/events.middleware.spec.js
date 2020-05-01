@@ -51,7 +51,6 @@ describe("Test publisher service", () => {
     });
     
     afterAll(async () => {
-        await broker.stop();
     });
     
     describe("Test broker", () => {
@@ -200,4 +199,13 @@ describe("Test publisher service", () => {
         
     });
     */
+	
+    describe("Test stop broker", () => {
+        it("should stop the broker", async () => {
+            expect.assertions(1);
+            await broker.stop();
+            expect(broker).toBeDefined();
+        });
+    });
+
 });

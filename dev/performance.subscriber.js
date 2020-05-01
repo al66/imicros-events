@@ -2,8 +2,11 @@
 const { ServiceBroker } = require("moleculer");
 const { Subscriber } = require("../index");
 const { Publisher } = require("../index");
+const { Admin } = require("../index");
 
 const timestamp = Date.now();
+const topic = `performance-topic-${timestamp}`;
+
 const calls = [];
 const Handler = {
     name: "handler",
@@ -19,6 +22,12 @@ const Handler = {
     }
 };
 
+let brokerAdmin  = new ServiceBroker({
+    nodeID: "Admin" + timestamp,
+    logger: console,
+    logLevel: "error", //"debug"
+    transporter: "nats://192.168.2.124:4222"
+});
 let broker  = new ServiceBroker({
     nodeID: "Subscriber" + timestamp,
     logger: console,
@@ -47,10 +56,26 @@ let emit = async () => {
 };
 let ts, te, tf;
 let run = async () => {
+    
+    // Create new topic first
+    await brokerAdmin.createService(Admin, Object.assign({ settings: { brokers: ["192.168.2.124:9092"] } }));
+    await brokerAdmin.start();
+    let params = {
+        topics: [ { topic: topic } ],
+        //topics: [ { topic: topic, numPartitions: 1, replicationFactor: 1, replicaAssignment: [{ partition: 0, replicas: [0] }]  } ],
+        waitForLeaders: false,
+        timeout: 1000
+    };
+    await brokerAdmin.call("events.admin.createTopics", params, {});
+    
     await brokerAction.createService(Handler);
-    await broker.createService(Publisher, Object.assign({ settings: { brokers: ["192.168.2.124:9092"] } }));
+    await broker.createService(Publisher, Object.assign({ settings: { 
+        brokers: ["192.168.2.124:9092"], 
+        topic: topic 
+    }}));
     await broker.createService(Subscriber, Object.assign({ settings: { 
         brokers: ["192.168.2.124:9092"], 
+        topic: topic, 
         groupId: "performance.subscriber", 
         fromBeginning: false, 
         handler: "handler.eachEvent"
@@ -100,6 +125,7 @@ let run = async () => {
     });
     await broker.stop();
     await brokerAction.stop();
+    await brokerAdmin.stop();
     
 };
 run();
