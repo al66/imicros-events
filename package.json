@@ -1,6 +1,6 @@
 {
   "name": "imicros-events",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "author": "Andreas Leinen <andreas.leinen@imicros.de> (www.imicros.de)",
   "license": "MIT",
   "description": "Moleculer service for persistent event handling",
@@ -22,12 +22,12 @@
     "coveragePathIgnorePatterns": [
       "/node_modules/",
       "/dev/",
-	  "/test/"
+      "/test/"
     ],
     "testPathIgnorePatterns": [
       "/node_modules/",
       "/dev/",
-	  "/test/"
+      "/test/"
     ]
   },
   "repository": {
@@ -39,13 +39,13 @@
     "events"
   ],
   "devDependencies": {
-    "jest": "^25.5.0",
+    "jest": "^25.5.4",
     "moleculer": "^0.14.6",
-    "nats": "^1.4.8"
+    "nats": "^1.4.9"
   },
   "dependencies": {
     "kafkajs": "^1.12.0",
     "lodash": "^4.17.15",
-    "uuidv4": "^6.0.7"
+    "uuidv4": "^6.0.8"
   }
 }
