@@ -87,6 +87,10 @@ describe("Test subscriber service", () => {
                 timeout: 1000
             };
             let res = await broker.call("events.admin.createTopics", params, opts);
+            function sleep(ms) {
+                return new Promise(resolve => setTimeout(resolve, ms));
+            }
+            await sleep(2000);   // wait some time to avoid group coordinator error with travis test
             expect(res.topics).toBeDefined();  
             expect(res.topics).toEqual(expect.objectContaining(params.topics));
         });        
