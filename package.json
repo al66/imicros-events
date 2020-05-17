@@ -6,7 +6,7 @@
   "description": "Moleculer service for persistent event handling",
   "main": "index.js",
   "scripts": {
-    "test": "jest --coverage --no-cache --config=travis.js",
+    "test": "jest --coverage --no-cache --config=travis.js --silent",
     "test-local": "jest --coverage --no-cache --config=local.js --silent",
     "test-admin": "jest test/events.admin.spec.js --no-cache --config=local.js",
     "test-pub": "jest test/events.publisher.spec.js --no-cache --config=local.js",

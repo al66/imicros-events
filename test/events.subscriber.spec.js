@@ -57,7 +57,21 @@ describe("Test subscriber service", () => {
     });
 
     beforeEach(() => {
-        opts = { meta: { user: { id: `1-${timestamp}` , email: `1-${timestamp}@host.com` }, groupId: `g-${timestamp}` } };
+        opts = { 
+            meta: { 
+                user: { 
+                    id: `1-${timestamp}` , 
+                    email: `1-${timestamp}@host.com` 
+                }, 
+                ownerId: `g-${timestamp}`,
+                token: "any",
+                accessToken: "any",
+                serviceToken: "any",
+                acl: {
+                    accessToken: "any"
+                }
+            } 
+        };
     });
 
     afterAll(async () => {
@@ -120,7 +134,7 @@ describe("Test subscriber service", () => {
                 return new Promise(resolve => setTimeout(resolve, ms));
             }
             await sleep(100);   // give subscriber time to process the message
-            expect(g.meta).toEqual(opts.meta);
+            expect(g.meta).toEqual({ user: opts.meta.user, ownerId: opts.meta.ownerId });
             expect(g.params.event).toEqual(params.event);
             expect(g.params.payload).toEqual(params.payload);
             expect(g.params.version).toBeDefined();
