@@ -50,17 +50,16 @@ describe("Test admin service", () => {
             opts = { meta: { user: { id: `1-${timestamp}` , email: `1-${timestamp}@host.com` }, groupId: `g-${timestamp}` } };
         });
 
-        it("it should create topic " + `test-topic-${timestamp}`, () => {
+        it("it should create topic " + `test-topic-${timestamp}`, async () => {
             opts = { };
             let params = {
                 topics: [ { topic: `test-topic-${timestamp}` } ],
                 waitForLeaders: true,
                 timeout: 1000
             };
-            return broker.call("events.admin.createTopics", params, opts).then(res => {
-                expect(res.topics).toBeDefined();
-                expect(res.topics).toEqual(expect.objectContaining(params.topics));
-            });
+            let res  = await broker.call("events.admin.createTopics", params, opts);
+            expect(res.topics).toBeDefined();
+            expect(res.topics).toEqual(expect.objectContaining(params.topics));
         });
 
         it("it should create topic events, if it does not exist", async () => {
@@ -70,35 +69,30 @@ describe("Test admin service", () => {
                 waitForLeaders: true,
                 timeout: 1000
             };
-            return broker.call("events.admin.createTopics", params, opts).then(res => {
-                expect(res.topics).toBeDefined();
-                expect(res.topics).toEqual(expect.objectContaining(params.topics));
-            });
+            let res = await broker.call("events.admin.createTopics", params, opts);
+            expect(res.topics).toBeDefined();
+            expect(res.topics).toEqual(expect.objectContaining(params.topics));
         });
 
     });
 
     describe("Fetch topic meta data", () => {
 
-        it("it should return existing topic " + `test-topic-${timestamp}`, () => {
+        it("it should return existing topic " + `test-topic-${timestamp}`, async () => {
             opts = { };
             let params = { topics: [`test-topic-${timestamp}`] };
-            return broker.call("events.admin.fetchTopicMetadata", params, opts).then(res => {
-                expect(res).toBeDefined();
-                expect(res.topics).toContainEqual(expect.objectContaining({ name: `test-topic-${timestamp}`, partitions: expect.anything() }));
-                //console.log(util.inspect(res,{ depth: null }));
-            });
+            let res = await broker.call("events.admin.fetchTopicMetadata", params, opts);
+            expect(res).toBeDefined();
+            expect(res.topics).toContainEqual(expect.objectContaining({ name: `test-topic-${timestamp}`, partitions: expect.anything() }));
         });
         
-        it("it should return existing topics", () => {
+        it("it should return existing topics", async () => {
             opts = { };
             let params = {};
-            return broker.call("events.admin.fetchTopicMetadata", params, opts).then(res => {
-                expect(res).toBeDefined();
-                expect(res.topics).toContainEqual(expect.objectContaining({ name: "events", partitions: expect.anything() }));
-                expect(res.topics).toContainEqual(expect.objectContaining({ name: `test-topic-${timestamp}`, partitions: expect.anything() }));
-                //console.log(util.inspect(res,{ depth: null }));
-            });
+            let res = await broker.call("events.admin.fetchTopicMetadata", params, opts);
+            expect(res).toBeDefined();
+            expect(res.topics).toContainEqual(expect.objectContaining({ name: "events", partitions: expect.anything() }));
+            expect(res.topics).toContainEqual(expect.objectContaining({ name: `test-topic-${timestamp}`, partitions: expect.anything() }));
         });
         
     });
@@ -108,17 +102,16 @@ describe("Test admin service", () => {
             opts = { meta: { user: { id: `1-${timestamp}` , email: `1-${timestamp}@host.com` }, groupId: `g-${timestamp}` } };
         });
 
-        it("it should delete topic " + `test-topic-${timestamp}`, () => {
+        it("it should delete topic " + `test-topic-${timestamp}`, async () => {
             opts = { };
             let params = {
                 topics: [ `test-topic-${timestamp}` ],
                 timeout: 1000
             };
-            return broker.call("events.admin.deleteTopics", params, opts).then(res => {
-                console.log(res);
-                expect(res.topics).toBeDefined();
-                expect(res.topics).toEqual(expect.objectContaining(params.topics));
-            });
+            let res = await broker.call("events.admin.deleteTopics", params, opts);
+            console.log(res);
+            expect(res.topics).toBeDefined();
+            expect(res.topics).toEqual(expect.objectContaining(params.topics));
         });
         
     });

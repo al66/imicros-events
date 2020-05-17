@@ -12,6 +12,8 @@ services:
       - "9092:9092"
     links:
         - zookeeper
+    depends_on:
+        - zookeeper
     environment:
       KAFKA_ADVERTISED_HOST_NAME: 127.0.0.1
     #  KAFKA_ADVERTISED_HOST_NAME: ${DOCKER_HOST_IP}
